@@ -3,7 +3,7 @@
 30 REM My RPG game for Amstrad GameDev Challenge, BASIC version
 40 REM by 8bitDave <david.novella@me.com>
 50 REM Created: 20190711
-60 REM Last updated: 20190714
+60 REM Last updated: 20190719
 
 
 
@@ -24,7 +24,7 @@
 270 a$=INKEY$
 280 IF a$="" THEN GOTO 270
 
-300 REM DRAW GAME SCREEN AND WINDOW DEFINITIONS
+300 REM DRAW GAME SCREEN AND WINDOW DEFS
 310 CLS
 320 ORIGIN 0,97:DRAW 640,0,2
 329 REM CHOOSE ACTION WINDOW
@@ -37,29 +37,54 @@
 360 WINDOW #4,21,40,22,22
 
 
-400 REM MAIN LOOP
-410 
-420 
-430 GOSUB 700
-440 GOSUB 710
-450 GOSUB 720
+400 REM FIRST GAME MESSAGES
+405 m$="You face an enemy"
+406 CLS #2
+410 GOSUB 700
+420 GOSUB 710
+430 GOSUB 720
 
 500 REM GAME LOGIC
+505 m$="Choose (A)ttack/(D)efense..."
 510 GOSUB 730
 520 a$=INKEY$
-530 IF a$="A" or a$="a" THEN ee=ee-pa:GOTO 600
+530 IF a$="A" or a$="a" THEN ee=ee-pa:IF ee < 0 THEN GOSUB 900 ELSE GOSUB 800: GOTO 600
 540 IF a$="D" or a$="d" THEN pe=pe+pd:GOTO 600
+545 IF a$="R" or a$="r" THEN GOTO 100
+546 IF a$="Q" or a$="q" THEN END
 550 GOTO 520
 
-600 IF RND<0.25 THEN pe=pe-ea:GOTO 400
+600 IF RND<0.75 THEN pe=pe-ea:GOSUB 850
 610 GOTO 520
 
 
-700 PRINT #2,"You face an enemy"
+700 PRINT #2,m$
 705 RETURN
 710 PRINT #3,"E: "ee"a:"ea"d:"ed
 715 RETURN
 720 PRINT #4,"P:"pe"a:"pa"d:"pd
 725 RETURN
-730 PRINT #1,"Choose (A)ttack/(D)efense..."
+730 PRINT #1,m$
 735 RETURN
+
+800 REM Attack routine, enemy resists
+810 m$="Enemy is hurt,     but alive"
+820 GOSUB 700
+830 GOSUB 710
+840 RETURN
+
+850 REM Enemy attacks you
+855 PRINT #2, ""
+860 m$="Enemy attacked you"
+870 GOSUB 700
+880 GOSUB 720
+890 RETURN
+
+900 REM Attack routine, enemy dies
+901 REM Fix game end or continue with other enemy
+902 CLS #2
+910 m$="Enemy died"
+920 GOSUB 700
+930 cls #3
+940 cls #1
+950 RETURN
