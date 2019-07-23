@@ -1,65 +1,50 @@
-/**
- * SUPER ULTRA RPG GAME
- * by @hec_linares
- * July 2019
- **/
+/**********************************************************
+**
+**	C DUNGEONS
+**	My RPG game for Amstrad GameDev Challenge, C version
+**	by	8bitDave <david.novella@me.com>
+**	Created: 		20190722
+**	Last updated:	20190722
+**
+***********************************************************/
 
 #include <cpctelera.h>
 #include <stdio.h>
 
-void main(void) {
-   // Init variables
-   u8 energy    = 100;
-   u8 attack    = 30;
-   u8 defense   = 15;
-   u8 energyen  = 90;
-   u8 attacken  = 20;
-   u8 defenseen = 10;
-   
-   // Let's start!
-   printf("RPG GAME\r\n");
-   printf("\r\n");
-   printf("PRESS ENTER TO START\r\n");
-   
-   // Is enter pressed?
-   while (!cpct_isKeyPressed(Key_Enter)) {
-      cpct_scanKeyboard();
-   }
+void main(void){
 
-   while (1) {
+	//Variable init
+	u8 *videoMem;
+	u8 colours[6]		= {0};
 
-      // CLS
-      putchar(12);
-      
-      // Print stats
-      printf("PLAYER [%d] (a%d) (d%d)\r\n", energy,   attack,   defense);
-      printf("ENEMY  [%d] (a%d) (d%d)\r\n", energyen, attacken, defenseen);
-      
-      // Re scan keyboard
-      cpct_scanKeyboard();
-      
-      while (!cpct_isKeyPressed(Key_A) && !cpct_isKeyPressed(Key_D)) {
-         cpct_scanKeyboard();
-      }
-         
-      // PLAYER ATTACKS!
-      if (cpct_isKeyPressed(Key_A)) {
-         energyen -= attack;
-      } else {
-         // PLAYER DEFENDS!
-         if (cpct_isKeyPressed(Key_D)) {
-            energy += defense;
-         }
-      }
-      
-      // ENEMY DECIDE
-      if (cpct_rand() < 64) {
-         energyen += defenseen;
-      } else {
-         energy -= attacken;
-      }
-   }
+	u8 playerEnergy 	= 100;
+	u8 playerAttack 	= 30;
+	u8 playerDefense	= 15;
+	u8 enemyEnergy		= 90;
+	u8 enemyAttack		= 20;
+	u8 enemyDefense		= 10;
 
-   // Loop forever
-   while (1);
+	cpct_disableFirmware();
+
+	//Splash screen
+	cpct_clearScreen();
+	printf("C DUNGEONS\r\n");
+	printf("#TeamC\r\n");
+	printf("8BitDave\n");
+	printf("\r\n");
+	printf("Key to START\r\n");
+
+	while (!cpct_isAnyKeyPressed()) {
+		cpct_scanKeyboard();
+	}
+
+	while(1) {
+
+		cpct_clearScreen(0);		
+		cpct_setVideoMode(1);
+		videoMem = CPCT_VMEM_START;
+
+	}
+
+
 }
