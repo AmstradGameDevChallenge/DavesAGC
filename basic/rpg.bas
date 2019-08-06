@@ -3,7 +3,7 @@
 1 REM My RPG game for Amstrad GameDev Challenge, BASIC version
 1 REM by 8bitDave <david.novella@me.com>
 1 REM Created: 20190711
-1 REM Last updated: 20190803
+1 REM Last updated: 20190806
 
 
 
