@@ -3,42 +3,89 @@
 1 REM My RPG game for Amstrad GameDev Challenge, BASIC version
 1 REM by 8bitDave <david.novella@me.com>
 1 REM Created: 20190711
-1 REM Last updated: 20190806
+1 REM Last updated: 20190809
 
+1 REM ======================================================
+1 REM =======     INITIALIZE                         =======
+1 REM ======================================================
+1 REM -- Player Attributes:
+1 REM e: Energy; a: Attack; d: Defense
+1 REM x: X-coordinate; y: Y-coordinate
+1 REM c: Character number
+1 REM ----------------------------------------
+1 REM -- Enemy Attributes (e- prefix, 2 chars): 
+1 REM ee: Enemy Energy; ea: Enemy Attack; ed: Enemy Defense
+1 REM ex: Enemy X-coordinate; ey: Enemy Y-coordinate
+1 REM ec: Enemy Character number; ep: Enemy Pen number
+1 REM em: Enemy move status
+1 REM ----------------------------------------
+1 REM -- Enemy General Control (e-prefix, 3 chars):
+1 REM emn: Enemy Max Number
+1 REM etn: Enemy Turn Number
+1 REM ene: Enemy Number
+1 REM ----------------------------------------
+1 REM -- Miscelaneous General Variables:
+1 REM a$: Temporary player input
+1 REM m$: Message to be shown in Message Window 
+1 REM ----------------------------------------
+1 REM -- General Flags:
+1 REM fm: Flag Movement, 1 if player has moved, to check suroundings
+1 REM fa: Flag Attack, 0 enemy attacks, 1 player attacks
+1 REM ----------------------------------------
+1 REM -- Functions:
+1 REM FNr(n): Random number between [n-3,n+3]
+1 REM ======================================================
+1 REM -- Symbols:
+1 REM ----------------------------------------
+1 REM -- Windows:
+1 REM 1: Game: where map, player and enemy are shown
+1 REM 2: Messages: where messages are displayed
+1 REM 3: Player stats
+1 REM 4: Enemy stats
+1 REM ----------------------------------------
+1 REM -- Inks:
+1 REM 0:  0, Black
+1 REM 1: 26, White
+1 REM 2:  6, Red
+1 REM 3:  9, Green
+1 REM ======================================================
 
-
-1 REM VARIABLE INIT
 100 CALL &BBFF:CALL &BB4E:DEFINT a-z:SYMBOL AFTER 240
-120 pe=100:pa=30:pd=15
-130 ee=80:ea=20:ed=10
-140 game$="BASIC DUNGEONS"
-150 a$="":m$=""
-1 REM Flag for attack, 0 the enemy attacks player, 1 player attacks
-160 fa=0 
+110 e=100:a=30:d=15:x=15:y=10
+120 emn=3:DIM ee(emn),ea(emn),ed(emn),ex(emn),ey(emn),ep(emn),em(emn)
+130 etn=0:ene=0
+140 a$="":m$=""
+150 fa=0 
+160 DEF FNr(n)=n-3+(RND*6)
+170 SYMBOL 244,3,7,14,92,56,48,72,128
+171 SYMBOL 245,254,238,198,238,254,254,124,16
+172 SYMBOL 246,24,0,24,36,66,66,126,60
+173 SYMBOL 247,0,6,12,88,112,32,80,128
+174 SYMBOL 252,0,0,124,108,124,108,56,16
+175 SYMBOL 253,24,0,24,36,126,126,126,60
+176 SYMBOL 254,124,108,124,108,124,108,56,16
+180 WINDOW #1,1,32,1,19:PEN #1,1 
+181 WINDOW #2,1,40,21,25:PEN #2,1
+182 WINDOW #3,35,40,3,8:PEN #3,3
+183 WINDOW #6,34,40,1,8:PEN #6,3
+184 WINDOW #4,34,40,12,19:PEN #4,2
+190 INK 0,0:INK 1,26:INK 2,6:INK 3,9
+
+
 
 1 REM SPLASH SCREEN
-210 INK 0,0:INK 1,26:INK 2,6:INK 3,9
-220 ORIGIN 160,300:DRAW 300,0,2:DRAW 300,-100:DRAW 0,-100:DRAW 0,0
-230 BORDER 0:LOCATE 13,8:PRINT game$
-240 LOCATE 15,10:PRINT"#TeamBASIC"
-250 LOCATE 16,11:PRINT"8bitDave"
-251 LOCATE 1,15:PRINT"Help: OPQA/arrows to move/attack"
-252 PRINT"TAB to inventory; ENTER to select"
+200 ORIGIN 160,300:DRAW 300,0,2:DRAW 300,-100:DRAW 0,-100:DRAW 0,0
+210 BORDER 0:LOCATE 13,8:PRINT "BASIC DUNGEONS"
+220 LOCATE 15,10:PRINT"#TeamBASIC"
+230 LOCATE 16,11:PRINT"8bitDave"
+240 LOCATE 1,15:PRINT"Help: OPQA/arrows to move/attack"
+250 PRINT"TAB to inventory; ENTER to select"
 260 LOCATE 14,20:PRINT"Key to START!"
 270 a$=INKEY$
 280 IF a$="" THEN GOTO 270
 
-1 REM DRAW GAME SCREEN AND WINDOW DEFS
-310 CLS
-1 REM **** GAME WINDOW ****
-320 WINDOW #1,1,32,1,19:PEN #1,1 
-1 REM **** MESSAGES WINDOW ****
-325 WINDOW #2,1,40,21,25:PEN #2,1
-1 REM **** PLAYER STATUS WINDOW ****
-330 WINDOW #3,35,40,3,8:PEN #3,3
-331 WINDOW #6,34,40,1,8:PEN #6,3
-1 REM **** ENEMY STATUS WINDOW ****
-340 WINDOW #4,34,40,12,19:PEN #4,2
+1 REM DRAW GAME SCREEN
+300 CLS
 350 ORIGIN 0,82:DRAW 640,0,2
 351 ORIGIN 0,86:DRAW 640,0,1
 352 ORIGIN 0,88:DRAW 640,0,1         
@@ -48,20 +95,19 @@
 356 ORIGIN 520,86:DRAW 0,314,1
 357 ORIGIN 524,92:DRAW 0,308,3
 358 ORIGIN 524,92:DRAW 116,0,3
-360 SYMBOL 244,3,7,14,92,56,48,72,128
-370 SYMBOL 245,254,238,198,238,254,254,124,16
-371 SYMBOL 246,24,0,24,36,66,66,126,60
-372 SYMBOL 247,0,6,12,88,112,32,80,128
-373 SYMBOL 252,0,0,124,108,124,108,56,16
-374 SYMBOL 253,24,0,24,36,126,126,126,60
-375 SYMBOL 254,124,108,124,108,124,108,56,16
 
 1 REM PLAYER AND ENEMY LOCATION AND FIRST DRAWING
 400 px=15:py=10
 410 LOCATE #1,px,py:PRINT #1,CHR$(249)
-420 ex=20:ey=15
-430 LOCATE #1,ex,ey:PRINT #1,CHR$(225)
-440 GOSUB 2000
+420 ene=0:
+430 WHILE (ene<emn)
+440 GOSUB 4000
+450 WEND
+460 ene=0
+470 FOR ene=0 TO emn -1 
+480 GOSUB 4400
+490 NEXT
+495 GOSUB 2000
 
 1 REM GAME LOGIC
 500 WHILE (1)
@@ -137,7 +183,7 @@
 2430 IF in=4 THEN i$="big potion"
 2440 IF in=5 THEN i$="big sword"
 2450 IF in=6 THEN i$="big shield"
-2460 IF in=7 THEN i$="anihilation"
+2460 IF in=7 THEN i$="redeemer"
 
 2500 PRINT #2,"You selected ";i$
 2510 PRINT #2,"Use it?(Y/N)";
@@ -173,3 +219,54 @@
 3100 PRINT #2,"An enemy is near you"
 3110 GOSUB 2800
 3120 RETURN
+
+1 REM ======================================================
+1 REM =======     ENEMY ROUTINES                     =======
+1 REM ======================================================
+1 REM
+1 REM -----------------------------------------
+1 REM ---   CREATE NEW ENEMY  (ene)
+1 REM -----------------------------------------
+1 REM
+4000 IF ene=emn THEN RETURN
+4010 ee(ene)=80:ea(ene)=35:ed(ene)=10
+4020 ex(ene)=10:ey(ene)=10+ene*2:em(ene)=0
+4030 ec(ene)=225:ep(ene)=ene+1
+4040 ene=ene+1
+4050 RETURN
+
+1 REM
+1 REM -----------------------------------------
+1 REM ---   DESTROY ENEMY 
+1 REM -----------------------------------------
+1 REM
+1 REM      etn     ene       
+1 REM | 0 | 1 | 2 | 3 |....| emn |
+1 REM
+4200 ene=ene-1:IF etn=ene THEN RETURN
+4210 ee(ent)=ee(ene):ea(ent)=ea(ene):ed(ent)=ed(ene)
+4220 ex(ent)=ex(ene):ey(ent)=ey(ene):em(ent)=em(ene)
+4230 ec(ent)=ec(ene):ep(ent)=ep(ene)
+4240 RETURN
+
+1 REM
+1 REM -----------------------------------------
+1 REM ---   DRAW ENEMU (etn) 
+1 REM -----------------------------------------
+1 REM
+4400 LOCATE ex(ene),ey(ene):PEN ep(ene)
+4410 PRINT CHR$(ec(ene));:PEN 1
+4420 RETURN
+
+
+
+
+
+
+
+
+
+
+
+
+
